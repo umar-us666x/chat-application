@@ -1,4 +1,5 @@
 import 'package:chat_application/widget/form_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -13,8 +14,15 @@ class AuthScreen extends StatelessWidget {
         await FirebaseAuth.instance
             .signInWithEmailAndPassword(email: email, password: password);
       } else {
-        await FirebaseAuth.instance
+        final result = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email, password: password);
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(result.user!.uid)
+            .set({
+          'username': username,
+          'email': email,
+        });
       }
     } on FirebaseException catch (e) {
       print(e);
